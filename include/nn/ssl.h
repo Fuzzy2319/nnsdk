@@ -1,25 +1,28 @@
 /**
  * @brief SSL implementation.
  */
-
 #pragma once
 
 #include <nn/nn_Result.h>
+#include <nn/ssl/ssl_Connection.h>
+#include <nn/ssl/ssl_Context.h>
+// @nncbindgen skip-start
+#include <nn/ssl/ssl_BuiltInManager.h>
+#include <nn/ssl/ssl_Debug.h>
+#include <nn/ssl/ssl_ISslConnection.h>
+#include <nn/ssl/ssl_ISslContext.h>
+#include <nn/ssl/ssl_ISslService.h>
+#include <nn/ssl/ssl_Types.h>
+// @nncbindgen skip-end
 
 namespace nn::ssl {
 
-enum CertificateFormat { PEM = 0x01, DER = 0x02 };
-
-class Context {
-public:
-    enum SslVersion { Auto = 0x01, v10 = 0x08, v11 = 0x10, v12 = 0x20 };
-
-    Result Create(nn::ssl::Context::SslVersion version);
-    Result ImportServerPki(uint64_t*, char const* certData, uint32_t certSize,
-                           nn::ssl::CertificateFormat certFormat);
-};
-
-Result Initialize();
-Result Finalize();
+// @nncbindgen
+nn::Result Initialize();
+// @nncbindgen(rename=InitializeWithConcurrencyLimit)
+nn::Result Initialize(uint32_t concurrencyLimit);
+// @nncbindgen
+nn::Result Finalize();
+nn::Result GetSslResultFromValue(nn::Result*, const char*, uint32_t);
 
 }  // namespace nn::ssl

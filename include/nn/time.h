@@ -2,35 +2,9 @@
 
 #include <cstdint>
 #include <nn/nn_Result.h>
+#include <nn/nn_TimeSpan.h>
 
-namespace nn {
-class TimeSpan {
-public:
-    uint64_t nanoseconds;
-
-    static TimeSpan FromNanoSeconds(uint64_t nanoSeconds) {
-        TimeSpan ret;
-        ret.nanoseconds = nanoSeconds;
-        return ret;
-    }
-    static TimeSpan FromMilliSeconds(uint64_t milliseconds) {
-        return FromNanoSeconds(milliseconds * 1000 * 1000);
-    }
-    static TimeSpan FromSeconds(uint64_t seconds) {
-        return FromNanoSeconds(seconds * 1000 * 1000 * 1000);
-    }
-    static TimeSpan FromMinutes(uint64_t minutes) {
-        return FromNanoSeconds(minutes * 1000 * 1000 * 1000 * 60);
-    }
-    static TimeSpan FromHours(uint64_t hours) {
-        return FromNanoSeconds(hours * 1000 * 1000 * 1000 * 60 * 60);
-    }
-    static TimeSpan FromDays(uint64_t days) {
-        return FromNanoSeconds(days * 1000 * 1000 * 1000 * 60 * 60 * 24);
-    }
-};
-
-namespace time {
+namespace nn::time {
 
 Result Initialize();
 bool IsInitialized();
@@ -76,5 +50,4 @@ Result ToCalendarTime(nn::time::CalendarTime*, nn::time::CalendarAdditionalInfo*
 Result ToPosixTime(int*, PosixTime*, int, const CalendarTime&);
 CalendarTime ToCalendarTimeInUtc(const PosixTime&);
 PosixTime ToPosixTimeFromUtc(const CalendarTime&);
-}  // namespace time
-}  // namespace nn
+}  // namespace nn::time

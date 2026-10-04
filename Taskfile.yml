@@ -30,6 +30,11 @@ tasks:
 
   configure:
     desc: Configure CMake
+    vars:
+      NN_VER_FROM_ENV:
+        sh: echo $NN_VER
+      NN_VER: '{{.NN_VER_FROM_ENV | default "1.0.0" | trim}}'
+      CMAKE_ARGS: -G Ninja --toolchain $(pwd)/toolchain/Toolchain.cmake -DNN_SDK={{.NN_VER}} -DNN_SDK_TYPE=Release
     cmds:
       - silent: true
         cmd: |
@@ -39,10 +44,17 @@ tasks:
             OUTPUT=toolchain
             [ -d "$OUTPUT/nx-aarch64-$VERSION" ] || curl -fsSL https://raw.githubusercontent.com/Pistonight/nx-aarch64/main/install.sh | VERSION="$VERSION" OUTPUT="$OUTPUT" sh
           fi
-
       - task: cbindgen
-      - cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="$PWD/toolchain/Toolchain.cmake" -B build
-      - cmake -G Ninja -DCMAKE_TOOLCHAIN_FILE="$PWD/toolchain/Toolchain.cmake" -B test/header_check/build -S test/header_check
+      - silent: true
+        cmd: |
+          if [ -z "{{.NN_VER_FROM_ENV}}" ]; then
+            echo "-- Using default NN_VER ({{.NN_VER}}). Run 'NN_VER=x.y.z task configure' to configure for a specific SDK version"
+          else
+            echo "-- Using NN_VER: {{.NN_VER}}"
+          fi
+      - cmake {{.CMAKE_ARGS}} -B build
+      - cmake {{.CMAKE_ARGS}} -B test/header_check/build -S test/header_check
+
   build:
     desc: Check the project builds and run tests
     cmds:
@@ -61,22 +73,26 @@ tasks:
             clang-tidy --version
           fi
       - task: clang-format
-        vars: { ARGS: -n -Werror }
+        vars:
+          ARGS: -n -Werror
       - task: clang-tidy
+
   fix:
     desc: Run clang-format to format the code
     cmds:
       - task: clang-format
-        vars: { ARGS: -i }
+        vars:
+          ARGS: -i
 
   cbindgen:
-    aliases: [cbg]
+    aliases:
+      - cbg
     desc: Generate nnc bindings
     env:
       LC_ALL: C
     cmds:
       - silent: true
-        cmd: | 
+        cmd: |
           cd include/nn
           grep -rl "@nncbindgen" | sort > ../../out
           cd ../..
@@ -88,7 +104,7 @@ tasks:
       NN_CBINDGEN_CHECK: 1
     cmds:
       - task: cbindgen
-          
+
   clean:
     desc: Remove CMake build files
     cmds:
@@ -98,7 +114,7 @@ tasks:
   clang-format:
     cmds:
       - silent: true
-        cmd: | 
+        cmd: |
           clang=$NX_CLANG
           if [ ! -d "$clang" ]; then
             clang="toolchain/nx-aarch64-$NX_AARCH64"
@@ -110,6 +126,7 @@ tasks:
           clang_format="$clang/bin/clang-format"
           echo 'running clang-format with {{numCPU}} cpus with args: {{.ARGS}}';
           find {{.SOURCES}} -regextype posix-extended -regex '.*\.[ch](\+\+|pp|xx|c|h)?' | xargs -P {{numCPU}} -n 1 $clang_format {{.ARGS}}
+
   clang-tidy:
     vars:
       ARGS: --warnings-as-errors="*" --header-filter="include/(nn|nvn|nvnTool|nv)" -p build --quiet

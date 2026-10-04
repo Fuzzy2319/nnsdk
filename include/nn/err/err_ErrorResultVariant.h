@@ -21,8 +21,8 @@ public:
     operator ErrorCode() const;
     operator Result() const;
 
-    void operator=(const Result& result);
-    void operator=(const ErrorCode& errorCode);
+    ErrorResultVariant& operator=(const Result& result);
+    ErrorResultVariant& operator=(const ErrorCode& errorCode);
 
 private:
     State m_State = State::Undefined;

@@ -2,7 +2,7 @@
 
 This repository includes:
 - User-created nnsdk headers for matching decompilation of some Nintendo games.
-  - The header files contained herewithin are entirely user created via Reverse Engineering or publicly available sources (non stripped binaries containing symbols and/or debug info), such as *Splatoon 2* and *Pokémon Sword and Shield*.
+  - The header files contained herewithin are entirely user created via Reverse Engineering or publicly available sources (non stripped binaries containing symbols and/or debug info).
 - Decompilation of sdk modules that are linked statically in some Nintendo games.
 
 Do not ask for or PR any copyrighted material to this repo. You will be ignored.
